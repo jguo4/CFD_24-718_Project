@@ -104,7 +104,7 @@ def Adv(u, v, x, y, i, j, flag):
 
     if flag == 1:
         v_1 = v[i][j]*(v[i][j+1] - v[i][j-1])/(y_0 + y_1)
-        v_2 = 0.25*(u[i][j-1]+u[i][j]+u[i+1][j-1]+ u[i+1][j])*(v[i][j+1] - v[i][j-1])/(x_0 + x_1)
+        v_2 = 0.25*(u[i][j-1]+u[i][j]+u[i+1][j-1]+ u[i+1][j])*(v[i+1][j] - v[i-1][j])/(x_0 + x_1)
 
         return v_1 + v_2
 
@@ -206,7 +206,7 @@ def BC_update(u, v, p):
     u[:,ny] =  copy.deepcopy(u[:,ny-1])
 
     v[:,ny-1] =  copy.deepcopy(v[:,ny-2])
-    v[:,ny-2] =  copy.deepcopy(v[:,ny-1])
+    v[:,ny] =  copy.deepcopy(v[:,ny-1])
 
     p[:,ny] = copy.deepcopy(p[:,ny-1])
     return u, v, p
@@ -221,7 +221,7 @@ def main():
     nu = 1.569e-5
     alpha_T = 2.239e-5
     alpha_pollutant = 2.239e-5
-    total_t = 0.01
+    total_t = 0.1
     t = 0
     dt = 0.001
     g = 10
@@ -239,6 +239,7 @@ def main():
         u_, v_ = predictor(x, y, u, v, T, dt, T_ref, rho, g, nu, beta)
         #print(u_)
         p_new = poisson(P,u_,v_,dt,x,y,rho)
+        #p_new = copy.deepcopy(P)
         #print(p_new)
         u_new, v_new = corrector(x, y, u_, v_, p_new, dt, rho)
         #print(u_new)
@@ -251,8 +252,6 @@ def main():
         v = copy.deepcopy(v_new)
 
         P = copy.deepcopy(p_new)
-
-
 
         t += dt
         write_all_scalar(P, T, u_new, v_new, t)
