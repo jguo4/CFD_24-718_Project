@@ -59,10 +59,10 @@ def poisson(P,u,v,dt,dx,dy,rho):
         return frac_x, frac_y, frac_rx, frac_ry
 
     def RHS(u,v,dx,dy,i,j,dt,rho):
-        U_=(u[(i+1,j)]-u[(i-1,j)])/(dx[(i,j)]+dx[(i-1,j)])
-        V_=(v[(i,j+1)]-v[(i,j-1)])/(dy[(i,j)]+dy[(i,j-1)])
+        U_=((u[(i,j)]+u[(i+1,j)])/2-(u[(i-1,j)]+u[(i,j)])/2)/((dx[(i-1,j)]+dx[(i,j)])/2)
+        V_=((v[(i,j)]+v[(i,j+1)])/2-(v[(i,j-1)]+v[(i,j)])/2)/((dy[(i,j-1)]+dy[(i,j)])/2)
         
-        rhs=-rho/dt*(U_+V_)
+        rhs=rho/dt*(U_+V_)
         return rhs
 
     Con = 1e-6
@@ -148,6 +148,8 @@ def predictor(x, y, u, v, T, dt, T_ref, rho, g, nu, beta):
 
     for i in range(1, nx-2):
         for j in range(1, ny-2):
+            u_i_j=0.25*(u[i-1][j]+u[i+1][j]+u[i][j-1]+u[i][j+1])
+            v_i_j=0.25*(v[i-1][j]+v[i+1][j]+v[i][j-1]+v[i][j+1])
             #print(i,j)
             u_[i][j] = u[i][j] + dt*(nu*(Diff(u, x, y, i, j)) - Adv(u, v, x, y, i, j, 0))
 
